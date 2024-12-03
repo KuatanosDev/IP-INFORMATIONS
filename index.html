@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="60">
+    <title>IP Address Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0,255,0,0.3);
+        }
+        .ip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #333333;
+        }
+        .ip-table th, .ip-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #444444;
+        }
+        .ip-table th {
+            background-color: #00ff00;
+            color: #000000;
+            font-weight: bold;
+        }
+        .ip-table tr:hover {
+            background-color: #404040;
+        }
+        .ip-info {
+            color: #00ff00;
+        }
+        .ipv4-info {
+            color: #00ccff;
+        }
+        .time-info {
+            color: #888888;
+        }
+        .refresh-info {
+            text-align: center;
+            color: #888888;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        #countdown {
+            color: #00ff00;
+        }
+        .total-connections {
+            text-align: right;
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IP Address Tracker</h1>
+        
+        <div class="total-connections">
+            Total Connections: <span id="totalCount">0</span>
+        </div>
+
+        <table class="ip-table">
+            <thead>
+                <tr>
+                    <th>IP Address</th>
+                    <th>IPv4</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="ipList">
+                <!-- Данные будут добавляться здесь -->
+            </tbody>
+        </table>
+
+        <div class="refresh-info">
+            Страница обновится через <span id="countdown">60</span> секунд
+            <br>
+            Последнее обновление: <span id="lastUpdate"></span>
+        </div>
+    </div>
+
+    <script>
+        // Функция для чтения данных из файла
+        async function loadIpData() {
+            try {
+                const response = await fetch('ip_data.txt');
+                const text = await response.text();
+                const lines = text.split('\n').filter(line => line.trim());
+                
+                const ipList = document.getElementById('ipList');
+                ipList.innerHTML = ''; // Очищаем список
+
+                lines.forEach(line => {
+                    const [ip, ipv4, timestamp] = line.split('|');
+                    if (ip && ipv4 && timestamp) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="ip-info">${ip}</td>
+                            <td class="ipv4-info">${ipv4}</td>
+                            <td class="time-info">${timestamp}</td>
+                        `;
+                        ipList.insertBefore(row, ipList.firstChild);
+                    }
+                });
+
+                // Обновляем счетчик
+                document.getElementById('totalCount').textContent = lines.length;
+            } catch (error) {
+                console.error('Error loading IP data:', error);
+            }
+        }
+
+        // Обновляем время последнего обновления
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString();
+        }
+        
+        // Обратный отсчет до следующего обновления
+        function startCountdown() {
+            let seconds = 60;
+            const countdownElement = document.getElementById('countdown');
+            
+            const timer = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
+        // Инициализация при загрузке страницы
+        window.onload = function() {
+            loadIpData();
+            updateLastUpdateTime();
+            startCountdown();
+        };
+    </script>
+</body>
+</html>
