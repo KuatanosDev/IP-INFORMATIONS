@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="60">
+    <meta http-equiv="refresh" content="20"> <!-- Обновление каждые 20 секунд -->
     <title>IP Address Tracker</title>
     <style>
         body {
@@ -77,7 +77,7 @@
         <h1>IP Address Tracker</h1>
         
         <div class="total-connections">
-            Total Connections: <span id="totalCount">0</span>
+            Количество подключений: <span id="totalCount">0</span>
         </div>
 
         <table class="ip-table">
@@ -85,22 +85,42 @@
                 <tr>
                     <th>IP Address</th>
                     <th>IPv4</th>
-                    <th>Time</th>
+                    <th>Время подключения</th>
                 </tr>
             </thead>
             <tbody id="ipList">
-                <!-- Данные будут добавляться здесь -->
+                <!-- Здесь будут появляться реальные IP от ip_window.exe -->
             </tbody>
         </table>
 
         <div class="refresh-info">
-            Страница обновится через <span id="countdown">60</span> секунд
+            Страница обновится через <span id="countdown">20</span> секунд
             <br>
             Последнее обновление: <span id="lastUpdate"></span>
         </div>
     </div>
 
     <script>
+        // Обновляем время последнего обновления
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString();
+        }
+        
+        // Обратный отсчет до следующего обновления
+        function startCountdown() {
+            let seconds = 20;
+            const countdownElement = document.getElementById('countdown');
+            
+            const timer = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
+        }
+
         // Функция для чтения данных из файла
         async function loadIpData() {
             try {
@@ -129,26 +149,6 @@
             } catch (error) {
                 console.error('Error loading IP data:', error);
             }
-        }
-
-        // Обновляем время последнего обновления
-        function updateLastUpdateTime() {
-            const now = new Date();
-            document.getElementById('lastUpdate').textContent = now.toLocaleString();
-        }
-        
-        // Обратный отсчет до следующего обновления
-        function startCountdown() {
-            let seconds = 60;
-            const countdownElement = document.getElementById('countdown');
-            
-            const timer = setInterval(() => {
-                seconds--;
-                countdownElement.textContent = seconds;
-                if (seconds <= 0) {
-                    clearInterval(timer);
-                }
-            }, 1000);
         }
 
         // Инициализация при загрузке страницы
